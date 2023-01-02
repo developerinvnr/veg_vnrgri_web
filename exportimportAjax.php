@@ -858,7 +858,7 @@ else { $hierarchyCond='1=1'; }
 		<td><?=$sno?></td>
 		
 		<td>
-		<?php if($_SESSION['uId']==1 OR $_SESSION['uId']==14 OR $_SESSION['uId']==134){?>
+		<?php if($_SESSION['uId']==1 OR $_SESSION['uId']==14 OR $_SESSION['uId']==134 OR $_SESSION['uId']==17 OR $_SESSION['uId']==20){?>
 		<span onClick="OpenDetails(<?php echo $agrd['agree_id'];?>,'<?php echo $agrd['agree_no']; ?>','<?php echo $agrd['ann_crop']; ?>')" style="text-decoration:underline;color:#158AFF;cursor:pointer;"><?=$agrd['agree_no']; ?></span>
 		<?php }else{ echo $agrd['agree_no']; } ?>
 		</td>

@@ -71,7 +71,7 @@ echo "\tV_Sown tranpl. Acrage\tV_GPS Acrage\tV_Diff Acarge\tV_PLD Acrage\tV_Diff
 
 echo "\tFlowering start date female\tFlowering start date male\tCrossing start date\tCrossing end date\tPlant population\tStanding Acrage\tPLD Acrage\tFinal standing (Gps Measure)\tOff type female\tOff type male\tDisease Obs. female\tDisease Obs. male\tMale removal date\tNo. of seed/Fruit\tNo. of fruit/plant\tTotal no. of plants\t100 seed weight/gm\tEstimated yield/Kg\tRemark\tExcellent\tGood\tAverage\tPoor\tUpdateOn";
 
-echo "\tPlant population\tStanding Acrage\tPld Ac\Final Gps Measure\tOff type female\tOff type male\tDisease Obs. female\tDisease Obs. male\tNo. of seed/Fruit\tNo. of fruit/plant\tTotal no. of plants\t100 seed weight/gm\tEstimated yield/Kg\tTotal off type female\tTotal off type male\tRemark\tExcellent\tGood\tAverage\tPoor\tUpdateOn";
+echo "\tPlant population\tStanding Acrage\tPld Ac\tFinal Gps Measure\tOff type female\tOff type male\tDisease Obs. female\tDisease Obs. male\tNo. of seed/Fruit\tNo. of fruit/plant\tTotal no. of plants\t100 seed weight/gm\tEstimated yield/Kg\tTotal off type female\tTotal off type male\tRemark\tExcellent\tGood\tAverage\tPoor\tUpdateOn";
 
 echo "\tPlant population female\tHarvesting start date\tHarvesting end date\tHarvesting acrage female\tFinal yield/kg\tRemark";
 
@@ -105,7 +105,11 @@ while ($allvd=mysql_fetch_assoc($allv)) {
 //==== query condition for crop filter =======================================================
 if(isset($_REQUEST['crop']) && $_REQUEST['crop']!=''){
 	$cropCond="agr.ann_crop=".$_REQUEST['crop'];
-}else{
+}
+elseif(isset($_REQUEST['crop']) && $_REQUEST['crop']==''){
+	$cropCond='1=1';
+}
+else{
 	$cropCond='1=1';
 }
 
@@ -195,8 +199,9 @@ else { $hierarchyCond='1=1'; }
 	$qry="";
 	for ($i=$agyearf; $i <= $agyeart; $i++) 
 	{
+        $qry.=" SELECT agr.* FROM `agreement_".$i."` agr where agr.agree_date between '".$from."' and '".$to."' and ".$cropCond." and ".$orgrCond." and ".$farmerCond." and ".$hierarchyCond." and ".$userCond." and ".$prodcode." and ".$pperson." and ".$keyArea." and ".$pexecutive." and ".$keyCond;
         
-        $qry.=" SELECT agr.* FROM `agreement_".$i."` agr where agr.agree_date between '2020-09-15' and '2021-03-20' and ".$cropCond." and ".$orgrCond." and ".$farmerCond." and ".$hierarchyCond." and ".$userCond." and ".$prodcode." and ".$pperson." and ".$keyArea." and ".$pexecutive." and ".$keyCond;
+        //$qry.=" SELECT agr.* FROM `agreement_".$i."` agr where agr.agree_date between '2020-09-15' and '2021-03-20' and ".$cropCond." and ".$orgrCond." and ".$farmerCond." and ".$hierarchyCond." and ".$userCond." and ".$prodcode." and ".$pperson." and ".$keyArea." and ".$pexecutive." and ".$keyCond;
         
 		if($i!=$agyeart)
 		{
@@ -244,40 +249,55 @@ else { $hierarchyCond='1=1'; }
 	echo $agrd['agree_no'].$sep;
 	echo $agrd['agree_date'].$sep;
 	echo $cropn.$sep;
-	echo $agrd['ann_fscode_f'].$sep;
-	echo $agrd['ann_fscode_m'].$sep;
-	echo $agrd['ann_prodcode'].$sep;
-	echo $agrd['fname'].$sep;
-	$str = chunk_split($agrd['tem_fid'], 4, ' ');
-	echo $str.$sep;  //second_party
-	echo $agrd['oname'].$sep;
-	echo $agrd['father_name'].$sep;
-	echo '`'.$agrd['contact_1'].'`'.$sep;
-	echo $agrd['email'].$sep;
-	echo $agrd['dob'].$sep;
-	if($agrd['aadhar_no']!=''){ $Aadhar=$agrd['aadhar_no']; }
-	elseif($agrd['idproof_name']=='Aadhar'){ $Aadhar=$agrd['idproof_no']; }
+	echo trim($agrd['ann_fscode_f']).$sep;
+	echo trim($agrd['ann_fscode_m']).$sep;
+	echo trim($agrd['ann_prodcode']).$sep;
+	
+	
+	$fn=mysql_fetch_assoc(mysql_query("select * from farmers where fid=".$agrd['second_party']));
+	echo trim($fn['fname']).$sep;
+	
+	$str = chunk_split($fn['tem_fid'], 4, ' ');
+	echo trim($str).$sep;  //second_party
+	
+	$on=mysql_fetch_assoc(mysql_query("select oname from organiser where oid=".$agrd['org_id']));
+	echo trim($on['oname']).$sep;
+	echo trim($fn['father_name']).$sep;
+	
+	echo '`'.$fn['contact_1'].'`'.$sep;
+	echo trim($fn['email']).$sep;
+	echo trim($fn['dob']).$sep;
+	
+	if($fn['aadhar_no']!=''){ $Aadhar=$fn['aadhar_no']; }
+	elseif($fn['idproof_name']=='Aadhar'){ $Aadhar=$fn['idproof_no']; }
 	else{ $Aadhar=''; }
 	echo '`'.$Aadhar.'`'.$sep;
-	if($agrd['pan_no']!=''){ $Pan=$agrd['pan_no']; }
-	elseif($agrd['idproof_name']=='Pan'){ $Pan=$agrd['idproof_no']; }
+	
+	if($fn['pan_no']!=''){ $Pan=$fn['pan_no']; }
+	elseif($fn['idproof_name']=='Pan'){ $Pan=$fn['idproof_no']; }
 	else{ $Pan=''; }
 	echo $Pan.$sep;
-	echo trim($agrd['bank_name']).$sep;
-	echo '`'.trim($agrd['account_no']).'`'.$sep;
-	echo trim($agrd['branch_name']).$sep;
-	echo trim($agrd['ifsc_code']).$sep;
-	echo trim($agrd['bank_add']).$sep;
-	echo trim($agrd['uName']).$sep;
-	echo getUName(trim($agrd['prod_executive'])).$sep;
-	echo $varr[trim($agrd['village_id'])].$sep;
-	echo $tarr[trim($agrd['tahsil_id'])].$sep;
-	echo $darr[trim($agrd['distric_id'])].$sep;
-	echo $sarr[trim($agrd['state_id'])].$sep;
+	
+	echo $fn['bank_name'].$sep;
+	echo '`'.$fn['account_no'].'`'.$sep;
+	echo $fn['branch_name'].$sep;
+	echo $fn['ifsc_code'].$sep;
+	echo $fn['bank_add'].$sep;
+	
+	$un=mysql_fetch_assoc(mysql_query("select uName from users where uId=".$agrd['prod_person']));
+	echo trim($un['uName']).$sep;
+	echo getUName($agrd['prod_executive']).$sep;
+	
+	echo $varr[trim($fn['village_id'])].$sep;
+	echo $tarr[trim($fn['tahsil_id'])].$sep;
+	echo $darr[trim($fn['distric_id'])].$sep;
+	echo $sarr[trim($fn['state_id'])].$sep;
+	
 	echo $villagen.$sep;
 	echo $tahsiln.$sep;
 	echo $distn.$sep;
 	echo $staten.$sep;
+	
     
 	//sowing female
 	echo trim($agrd['S_sowing_method_female']).$sep;
@@ -359,49 +379,61 @@ else { $hierarchyCond='1=1'; }
 	echo trim($agrd['V_disease_observed_female']).$sep;
 	echo trim($agrd['V_disease_observed_male']).$sep;
 	
-	if($agrd['V_Remark']!=''){ echo $agrd['V_Remark'].$sep; }
-	else{ echo ''.$sep; }
+	if($agrd['V_Remark']!=''){ echo trim($agrd['V_Remark']).$sep; }
+	else{ echo ' '.$sep; }
 	
 	$agr_y = substr($agrd['agree_no'], 0, 4);
 	 
 	$sV=mysql_query("SELECT * FROM agreement_vegetative_".$agr_y." where agree_id='".$agrd['agree_id']."'"); 
-	while($rV=mysql_fetch_assoc($sV))
-	{ 
+	$rVRow=mysql_num_rows($sV);
+	if($rVRow>0)
+	{
+	 while($rV=mysql_fetch_assoc($sV))
+	 { 
 	  $arr_Ve[]=$rV['V_excellent_cond_ac']; $arr_Vg[]=$rV['V_good_cond_ac'];
 	  $arr_Va[]=$rV['V_average_cond_ac']; $arr_Vp[]=$rV['V_poor_cond_ac']; $arr_Vu[]=$rV['V_update']; 
-	}  
-	echo implode(',', $arr_Ve).$sep; 
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_Vg).$sep;
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_Va).$sep;
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_Vp).$sep;
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_Vu).$sep;
-	//else{ echo ''.$sep; }
-	
+	 }  
+	 echo implode(',', $arr_Ve).$sep; 
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_Vg).$sep;
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_Va).$sep;
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_Vp).$sep;
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_Vu).$sep;
+	 //else{ echo ''.$sep; }
+	}
+	else
+	{
+	 echo ' '.$sep; 
+	 echo ' '.$sep; 
+	 echo ' '.$sep; 
+	 echo ' '.$sep; 
+	 echo ' '.$sep;    
+	}
 	
 	//flowering & pollination
 	if($agrd['F_flowering_start_date_female']>='2022-01-01')
-	{ $NDm7=$agrd['F_flowering_start_date_female']; }
-	echo $NDm7.$sep;
+	{ echo $agrd['F_flowering_start_date_female'].$sep; }
+	else{ echo ''.$sep; }
 	//echo $agrd['F_flowering_start_date_female'].$sep;
 	
 	if($agrd['F_flowering_start_date_male']>='2022-01-01')
-	{ $NDm8=$agrd['F_flowering_start_date_male']; }
-	echo $NDm8.$sep;
+	{ echo $agrd['F_flowering_start_date_male'].$sep; }
+	else{ echo ''.$sep; }
 	//echo $agrd['F_flowering_start_date_male'].$sep;
 	
 	if($agrd['F_crossing_start_date']>='2022-01-01')
-	{ $NDm9=$agrd['F_crossing_start_date']; }
-	echo $NDm9.$sep;
+	{ echo $agrd['F_crossing_start_date'].$sep; }
+	else{ echo ''.$sep; }
 	//echo $agrd['F_crossing_start_date'].$sep;
 	
 	if($agrd['F_crossing_end_date']>='2022-01-01')
-	{ $NDm10=$agrd['F_crossing_end_date']; }
-	echo $NDm10.$sep;
+	{ echo $agrd['F_crossing_end_date'].$sep; }
+	else{ echo ''.$sep; }
 	//echo $agrd['F_crossing_end_date'].$sep;
+	
 	echo $agrd['F_plant_population'].$sep;
 	echo $agrd['F_standing_ac'].$sep;
 	echo $agrd['F_pld_ac'].$sep;
@@ -412,9 +444,10 @@ else { $hierarchyCond='1=1'; }
 	echo $agrd['F_disease_observed_male'].$sep;
 	
 	if($agrd['F_male_removal_date']>='2022-01-01')
-	{ $NDm11=$agrd['F_male_removal_date']; }
-	echo $NDm11.$sep;
+	{ echo $agrd['F_male_removal_date'].$sep; }
+	else{ echo ''.$sep; }
 	//echo $agrd['F_male_removal_date'].$sep;
+	
 	echo $agrd['F_number_of_seed_fruit'].$sep;
 	echo $agrd['F_number_of_fruits_plant'].$sep;
 	echo $agrd['F_total_number_of_plants'].$sep;
@@ -423,22 +456,33 @@ else { $hierarchyCond='1=1'; }
 	echo $agrd['F_Remark'].$sep;
 	
 	$sF=mysql_query("SELECT * FROM agreement_flowering_".$agr_y." where agree_id='".$agrd['agree_id']."'"); 
-	while($rF=mysql_fetch_assoc($sF))
-	{ 
+	$rFRow=mysql_num_rows($sF);
+	if($rFRow>0)
+	{
+	 while($rF=mysql_fetch_assoc($sF))
+	 { 
 	  $arr_Fe[]=$rF['F_excellent_cond_ac']; $arr_Fg[]=$rF['F_good_cond_ac'];
 	  $arr_Fa[]=$rF['F_average_cond_ac']; $arr_Fp[]=$rF['F_poor_cond_ac']; $arr_Fu[]=$rF['F_update']; 
-	}  
-	echo implode(',', $arr_Fe).$sep; 
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_Fg).$sep;
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_Fa).$sep; 
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_Fp).$sep;
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_Fu).$sep;
-	//else{ echo ''.$sep; }
-	
+	 }  
+	 echo implode(',', $arr_Fe).$sep; 
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_Fg).$sep;
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_Fa).$sep; 
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_Fp).$sep;
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_Fu).$sep;
+	 //else{ echo ''.$sep; }
+	}
+	else
+	{
+	 echo ''.$sep; 
+	 echo ''.$sep; 
+	 echo ''.$sep; 
+	 echo ''.$sep; 
+	 echo ''.$sep;    
+	}
 	//Post Flowering
 	echo $agrd['Pf_plant_population'].$sep;
 	echo $agrd['Pf_standing_ac'].$sep;
@@ -446,6 +490,7 @@ else { $hierarchyCond='1=1'; }
 	echo $agrd['Final_GPS_Measure'].$sep;
 	echo $agrd['Pf_off_type_female'].$sep;
 	echo $agrd['Pf_off_type_male'].$sep;
+	
 	echo $agrd['Pf_disease_observed_female'].$sep;
 	echo $agrd['Pf_disease_observed_male'].$sep;
 	echo $agrd['Pf_number_of_seed_fruit'].$sep;
@@ -459,43 +504,59 @@ else { $hierarchyCond='1=1'; }
 	
 	
 	$spF=mysql_query("SELECT * FROM agreement_postflowering_".$agr_y." where agree_id='".$agrd['agree_id']."'"); 
-	while($rpF=mysql_fetch_assoc($spF))
-	{ 
+	$rpFRow=mysql_num_rows($spF);
+	if($rpFRow>0)
+	{
+	 while($rpF=mysql_fetch_assoc($spF))
+	 { 
 	  $arr_pFe[]=$rpF['Pf_excellent_cond_ac']; $arr_pFg[]=$rpF['Pf_good_cond_ac'];
 	  $arr_pFa[]=$rpF['Pf_average_cond_ac']; $arr_pFp[]=$rpF['Pf_poor_cond_ac']; $arr_pFu[]=$rpF['Pf_update']; 
-	}
+	 }
 	  
-	echo implode(',', $arr_pFe).$sep; 
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_pFg).$sep; 
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_pFa).$sep; 
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_pFp).$sep; 
-	//else{ echo ''.$sep; }
-	echo implode(',', $arr_pFu).$sep; 
-	//else{ echo ''.$sep; }
+	 echo implode(',', $arr_pFe).$sep; 
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_pFg).$sep; 
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_pFa).$sep; 
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_pFp).$sep; 
+	 //else{ echo ''.$sep; }
+	 echo implode(',', $arr_pFu).$sep; 
+	 //else{ echo ''.$sep; }
+	}
+	else
+	{
+	 echo ''.$sep; 
+	 echo ''.$sep; 
+	 echo ''.$sep; 
+	 echo ''.$sep; 
+	 echo ''.$sep;    
+	}
 	
 	//Harvesting
 	echo $agrd['H_plant_population_female'].$sep;
 	
 	if($agrd['H_harvesting_start_date']>='2022-01-01')
-	{ $NDm12=$agrd['H_harvesting_start_date']; }
-	echo $NDm12.$sep;
+	{ echo $agrd['H_harvesting_start_date'].$sep; }
+	else{ echo ''.$sep; }
 	//echo $agrd['H_harvesting_start_date'].$sep;
 	
+	if($agrd['H_harvesting_end_date']!='' AND $agrd['H_harvesting_end_date']!='1970-01-01' AND $agrd['H_harvesting_end_date']!='0000-00-00')
+	{ $HarEndD=$agrd['H_harvesting_end_date']; }
+	else{ $HarEndD=' '; }
+	echo $HarEndD.$sep;
+	
+	/*
 	if($agrd['H_harvesting_end_date']>='2022-01-01')
-	{ $NDm13=$agrd['H_harvesting_end_date']; }
-	echo $NDm13.$sep;
-	//echo $agrd['H_harvesting_end_date'].$sep;
-	echo $agrd['H_harvesting_acrage_female'].$sep;
+	{ echo $agrd['H_harvesting_end_date'].$sep; }
+	else{ echo ' '.$sep; }
+	*/
+	
+	echo $agrd['H_harvesting_acrage_female'].$sep; 
 	echo $agrd['H_final_yield'].$sep;
-	echo $agrd['H_Remark'].$sep;
-	
-	
+	echo $agrd['H_Remark'].$sep; 
 	
 	echo $agrdL['lot_no'].$sep;
-	
 	if($agrdL['Dispatch_Date']!='0000-00-00'){ echo $agrdL['dispatch_date'].$sep; }
 	else { echo ''.$sep; }
 	

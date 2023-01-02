@@ -162,6 +162,9 @@ date_default_timezone_set('asia/calcutta');
 		
 		$spf=mysql_query("SELECT * FROM agreement_postflowering_".$agr_y." where agree_id='".$res['agree_id']."' order by Pf_update DESC"); 
 		while($rpf=mysql_fetch_assoc($spf)){ $rr_pf[]=$rpf; }
+		
+		$sh=mysql_query("SELECT * FROM agreement_harvesting_".$agr_y." where agree_id='".$res['agree_id']."' order by H_update DESC"); 
+		while($rh=mysql_fetch_assoc($sh)){ $rr_h[]=$rh; }
 	   } 
 	    
 	   
@@ -172,6 +175,7 @@ date_default_timezone_set('asia/calcutta');
 	   $res['Vegetative']=$rr_v;
 	   $res['Flowering']=$rr_f;
 	   $res['Postflowering']=$rr_pf;
+	   $res['Harvesting']=$rr_h;
 	   $farray[]=$res; 
      } 
      echo json_encode(array( "agreement_list" => $farray) ); 

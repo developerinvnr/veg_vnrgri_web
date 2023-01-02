@@ -50,7 +50,7 @@ while ($allrd=mysql_fetch_assoc($allr)){
 
 	<div id="editUDiv" style="display:none;margin-bottom: 10px;padding:2px;background-color:#EDEDED;border:2px solid #ccc;">
 		<h6 style="font-weight: bold;" id="actiontext"></h6>
-		<iframe id="editUIframe" src="addFarmer.php" style="width: 800px;height:400px;"></iframe>
+		<iframe id="editUIframe" src="addFarmer.php" style="width:1000px;height:600px;"></iframe>
 	</div>
 
 	<button id="addubtn" class="frmbtn btn btn-sm btn-primary " onclick="$('#addutbl').show(500);$(this).hide(500);">Add User</button>

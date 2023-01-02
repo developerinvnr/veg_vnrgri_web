@@ -136,7 +136,11 @@ $to11 = date('d-m-Y',strtotime($_REQUEST['to']));
 //==== query condition for crop filter =======================================================
 if(isset($_REQUEST['crop']) && $_REQUEST['crop']!=''){
 	$cropCond="agr.ann_crop=".$_REQUEST['crop'];
-}else{
+}
+elseif(isset($_REQUEST['crop']) && $_REQUEST['crop']==''){
+	$cropCond='1=1';
+}
+else{
 	$cropCond='1=1';
 }
 

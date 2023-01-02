@@ -99,7 +99,11 @@ if(isset($_POST['act']) && $_POST['act']=='get_agr_report_list')
 	//==== query condition for crop filter =======================================================
 	if(isset($_POST['crop']) && $_POST['crop']!=''){
 		$cropCond="agr.ann_crop=".$_POST['crop'];
-	}else{
+	}
+	elseif(isset($_POST['crop']) && $_POST['crop']==''){
+		$cropCond='1=1';
+	}
+	else{
 		$cropCond='1=1';
 	}
 
@@ -198,7 +202,7 @@ else { $hierarchyCond='1=1'; }
 	    }
 	}
 
-	
+    //echo $qry;	
 	ini_set('memory_limit', '-1');
 	
 	$agra=mysql_query($qry);

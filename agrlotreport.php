@@ -843,10 +843,9 @@ $varr=$_SESSION['varr'];
 
 
 		var crop = $('#crop').val();
+		var prodcode = $('#prodcode').val();  
 
-		var prodcode = $('#prodcode').val(); 
-
-		if(crop==''){ alert("Please select crop!"); return false; }
+		//if(crop==''){ alert("Please select crop!"); return false; }
 
 		var secondparty = $('#secondparty').val(); 	
 
@@ -873,9 +872,6 @@ $varr=$_SESSION['varr'];
 		var keywordSearch = $('#keywordSearch').val(); 
 
         
-
-        
-
 		$.post("agrlotreport_act.php",{ act:'get_agr_report_list',page:page,crop:crop,orgr:orgr,from:from,to:to,secondparty:secondparty,users:users,keywordSearch:keywordSearch,prodcode:prodcode,pperson:pperson,pexe:pexe,sii:sii,dii:dii,tii:tii,vii:vii},function(data) { 
 
 			$('#reportBody').html(data);  //alert(data);
